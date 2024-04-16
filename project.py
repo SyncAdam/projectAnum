@@ -3,7 +3,7 @@
 import random
 import numpy as np
 import matplotlib.pyplot as plt
-
+import math
 #B.1# -----------------
 
 def f(x):
@@ -69,18 +69,20 @@ print(-BalAlea(mf, a, b, n))
 
 x0 = a + (b - a) * random.random()
 
-u = -0.01
+u = -0.01  #t = -0.28876 pour optimale
 
 def fder(x):
-    return (3 * pow(x, 2) - 6 * x + 2)
+    return (3 * math.pow(x, 2) - 6 * x + 2)
 
 for i in range(n):
     if(i == 0):
         xnp1 = x0 + u * fder(x0)
     else:
         xnp1 = xnp1 + u * fder(xnp1)
+        #print(xnp1)
 
 print(f(xnp1))
+print("xnp1" , xnp1)
 
 
 
@@ -88,11 +90,30 @@ print(f(xnp1))
 #B.7# -----------------
     #B.7.a# -----------------
 
+def fder2(x): #f''(x)
+    return 6 * x - 6
 
+def phi(t): #𝜑(t)
+    return f(xnp1 + t * fder(xnp1))
+
+def phider(t):#𝜑'(t)
+    return (fder(xnp1 + t * fder(xnp1)) * fder(xnp1))
+
+def phider2(t): #𝜑''(t)
+    return (fder2(xnp1 + t * fder(xnp1)) * math.pow(fder(xnp1), 2))
+
+print(phider(0))
+print(phider2(0))
 
     #B.7.b# -----------------
 
+def phiDL(t): 
+    return phider(0) + phider2(0) * t
 
+#t = (-phider(0)/phider2(0))
 
 
 #C.1# -----------------
+
+#  Nabla <=> derivée partiel
+# plot_surface 
