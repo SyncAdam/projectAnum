@@ -1,9 +1,12 @@
 # Methodes de balayage pour chercher le minimum
 
 import random
+from matplotlib.colors import LightSource
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+from matplotlib import cm
+from matplotlib.ticker import LinearLocator
 #B.1# -----------------
 
 def f(x):
@@ -113,7 +116,134 @@ def phiDL(t):
 #t = (-phider(0)/phider2(0))
 
 
-#C.1# -----------------
+#C.8# -----------------
 
 #  Nabla <=> derivée partiel
 # plot_surface 
+
+def g(x, y, a, b):
+    return (pow(x, 2) / a) + pow(y, 2) / b
+
+def h(x, y):
+    A = np.cos(x)
+    B = np.sin(y)
+    return (A)*(B)
+
+x = np.arange(-10, 10, 0.25)
+y = np.arange(-10, 10)
+
+a = 2
+b = 2/7
+
+fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+
+x, y = np.meshgrid(x, y)
+
+z =  g(x, y, a, b)
+
+# Customize the z axis.
+ax.plot_surface(x, y, z, vmin=z.min() * 2, cmap=cm.Blues)
+
+ax.set(xticklabels=[],
+       yticklabels=[],
+       zticklabels=[])
+
+plt.show()
+
+x1 = np.arange(-10, 10, 0.1)
+y1 = np.arange(-10, 10, 0.1)
+x1, y1 = np.meshgrid(x1, y1)
+z1 = h(x1, y1)
+
+fig1, ax1 = plt.subplots(subplot_kw={"projection": "3d"})
+ax1.plot_surface(x1, y1, z1, vmin=z1.min() * 2, cmap=cm.Blues)
+ax1.set(xticklabels=[],
+       yticklabels=[],
+       zticklabels=[])
+plt.show()
+
+
+#C.9#----------------
+
+plt.style.use('_mpl-gallery-nogrid')
+#G
+# make data
+X, Y = np.meshgrid(np.linspace(-10,10), np.linspace(-10,10))
+Z = g(X,Y, 2,2/7)
+levels = np.linspace(Z.min(), Z.max(), 7)
+
+# plot
+fig, ax = plt.subplots()
+
+ax.contourf(X, Y, Z, levels=levels)
+
+plt.show()
+#H
+Z = h(X,Y)
+levels = np.linspace(Z.min(), Z.max(), 7)
+
+# plot
+fig, ax = plt.subplots()
+
+ax.contourf(X, Y, Z, levels=levels)
+
+plt.show()
+
+#C.10#---------------
+
+def gradg(x, y, a, b):
+    return(((2*x)/a ) + (y**2)/b, (x**2)/a + (2*y)/b)
+
+def gradh(x, y):
+    return (-np.sin(x)*np.sin(y), np.cos(x)* np.cos(y))
+
+#C.11#---------------
+point = (0, 1)
+point2 = (1, 1)
+
+print(gradg(point[0], point[1], a, b))
+print(gradh(point[0], point[1]))
+print(np.linalg.norm(gradg(point[0], point[1], a, b)))
+#C.12#---------------
+
+#pas constant
+
+
+
+def gradpc(eps, MaxIter, u, x0, y0, df1, df2):
+    index = 0
+    points = []
+    (xnp1, ynp1) = (x0, y0) 
+    points.append((xnp1, ynp1))
+    while(eps < np.linalg.norm((df1, df2)) and index < MaxIter):
+        (xnp1, ynp1) = (xnp1, ynp1) + u*(df1(xnp1, ynp1), df2(xnp1, ynp1))
+        points.append((xnp1, ynp1))
+    return points
+
+#C.13#---------------
+
+(x01, y01) = (0, 0)
+
+#derivée partielle par rapport a x de g
+def dpgx(x, y, a, b):
+    return (((2*x)/a ) + (y**2)/b)
+
+#derivée partielle par rapport a y de g
+def dpgy(x, y, a, b):
+    return (x**2)/a + (2*y)/b
+
+def dphx(x, y):
+    return -np.sin(x)*np.sin(y)
+
+def dphy(x, y):
+    return np.cos(x)* np.cos(y)
+
+pointsg = gradpc(10**-5, 120, -0.1, 7, 1.5, dpgx, dpgy)
+pointsh = gradpc(10**-5, 120, -0.1, 0, 0, dphx, dphy)
+
+
+
+
+
+
+
