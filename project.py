@@ -7,113 +7,7 @@ import matplotlib.pyplot as plt
 import math
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator
-#B.1# -----------------
 
-def f(x):
-    return pow(x, 3) - 3 * pow(x, 2) + 2 * x + 5
-
-def mf(x):
-    return -(pow(x, 3) - 3 * pow(x, 2) + 2 * x + 5)
-
-def chercheMinPasConstant(f, a, b, n):
-    dx = abs(b - a) / n
-    min = f(a)
-    for i in range(n):
-        if(f(a + dx * i) < min):
-            min = f(a + dx * i)
-    return min
-
-def BalAlea(f,a,b,N):
-    Val = f(a+ (b-a)*random.random())
-    for i in range(N+1):
-        N = f(a+(b-a)*random.random())
-        if(Val>N):
-            Val=N
-    return Val
-
-#B.2# -----------------
-
-print(chercheMinPasConstant(f,0,3,1000))
-print(BalAlea(f,0,3,1000))    
-
-#B.3# ------------------
-#À calculer à la main 
-minreelle = (3 + np.sqrt(3)) / 6
-n = 1000
-a = 0
-b = 3
-
-pasConstantErreur = []
-aleatoireErreur= []
-
-for i in range(n):
-    pasConstantErreur.append(abs(minreelle - chercheMinPasConstant(f, a, b, i + 1)))
-    aleatoireErreur.append(abs(minreelle - BalAlea(f, a, b, i + 1)))
-
-X = [k + 1 for k in range(n)]
-
-#plt.plot(np.log(X), np.log(pasConstantErreur), 'r-', label="Erreur pour la methode pas constant")
-#plt.plot(np.log(X), np.log(aleatoireErreur), 'b-', label="Erreur pour la methode pas aleatoire")
-#plt.ylabel('ln(err)')
-#plt.xlabel ('X')
-#plt.legend()
-#plt.show()
-
-
-#B.4# -----------------
-
-# pour chercher le maximum de f avec la meme methode
-# mf représente -f
-print(-chercheMinPasConstant(mf, a, b, n))
-print(-BalAlea(mf, a, b, n))
-
-#B.6# -----------------
-# méthodes du gradiant 1D
-
-x0 = a + (b - a) * random.random()
-
-u = -0.01  #t = -0.28876 pour optimale
-
-def fder(x):
-    return (3 * math.pow(x, 2) - 6 * x + 2)
-
-for i in range(n):
-    if(i == 0):
-        xnp1 = x0 + u * fder(x0)
-    else:
-        xnp1 = xnp1 + u * fder(xnp1)
-        #print(xnp1)
-
-print(f(xnp1))
-print("xnp1" , xnp1)
-
-
-
-
-#B.7# -----------------
-    #B.7.a# -----------------
-
-def fder2(x): #f''(x)
-    return 6 * x - 6
-
-def phi(t): #𝜑(t)
-    return f(xnp1 + t * fder(xnp1))
-
-def phider(t):#𝜑'(t)
-    return (fder(xnp1 + t * fder(xnp1)) * fder(xnp1))
-
-def phider2(t): #𝜑''(t)
-    return (fder2(xnp1 + t * fder(xnp1)) * math.pow(fder(xnp1), 2))
-
-print(phider(0))
-print(phider2(0))
-
-    #B.7.b# -----------------
-
-def phiDL(t): 
-    return phider(0) + phider2(0) * t
-
-#t = (-phider(0)/phider2(0))
 
 
 #C.8# -----------------
@@ -168,17 +62,19 @@ plt.show()
 plt.style.use('_mpl-gallery-nogrid')
 #G
 # make data
-X, Y = np.meshgrid(np.linspace(-10,10), np.linspace(-10,10))
-Z = g(X,Y, 2,2/7)
-levels = np.linspace(Z.min(), Z.max(), 7)
+Xg, Yg = np.meshgrid(np.linspace(-10,10), np.linspace(-10,10))
+Zg = g(Xg,Yg, 2,2/7)
+levelsG = np.linspace(Zg.min(), Zg.max(), 7)
 
 # plot
-fig, ax = plt.subplots()
+figg, axg = plt.subplots()
 
-ax.contourf(X, Y, Z, levels=levels)
+axg.contourf(Xg, Yg, Zg, levels=levelsG)
 
 plt.show()
 #H
+X, Y= np.meshgrid(np.linspace(-10,10), np.linspace(-10,10))
+
 Z = h(X,Y)
 levels = np.linspace(Z.min(), Z.max(), 7)
 
@@ -208,19 +104,32 @@ print(np.linalg.norm(gradg(point[0], point[1], a, b)))
 
 #pas constant
 
-
-
 def gradpc(eps, MaxIter, u, x0, y0, df1, df2):
+    a = 2
+    b = 2/7
     index = 0
     points = []
-    (xnp1, ynp1) = (x0, y0) 
+    (xnp1, ynp1) = np.array((x0, y0))
     points.append((xnp1, ynp1))
-    while(eps < np.linalg.norm((df1, df2)) and index < MaxIter):
-        (xnp1, ynp1) = (xnp1, ynp1) + u*(df1(xnp1, ynp1), df2(xnp1, ynp1))
+    while(eps < np.linalg.norm((df1(xnp1, ynp1, a, b), df2(xnp1, ynp1, a, b))) and index < MaxIter):
+        (xnp1, ynp1) = (xnp1, ynp1) + u * np.array((df1(xnp1, ynp1, a, b), df2(xnp1, ynp1, a, b)))
+        points.append((xnp1, ynp1))
+    return points
+
+
+def gradpc2(eps, MaxIter, u, x0, y0, df1, df2):
+    index = 0
+    points = []
+    (xnp1, ynp1) = np.array((x0, y0))
+    points.append((xnp1, ynp1))
+    while(eps < np.linalg.norm((df1(xnp1, ynp1), df2(xnp1, ynp1))) and index < MaxIter):
+        (xnp1, ynp1) = (xnp1, ynp1) + u * np.array((df1(xnp1, ynp1), df2(xnp1, ynp1)))
         points.append((xnp1, ynp1))
     return points
 
 #C.13#---------------
+a = 2
+b = 2/7
 
 (x01, y01) = (0, 0)
 
@@ -239,11 +148,63 @@ def dphy(x, y):
     return np.cos(x)* np.cos(y)
 
 pointsg = gradpc(10**-5, 120, -0.1, 7, 1.5, dpgx, dpgy)
-pointsh = gradpc(10**-5, 120, -0.1, 0, 0, dphx, dphy)
+pointsh = gradpc2(10**-5, 120, -0.1, 0, 0, dphx, dphy)
+
+#G
+xs = [x[0] for x in pointsg]
+ys = [y[1] for y in pointsg]
+"""
+Xs, Ys = np.meshgrid(xs, ys)
+Zs = g(Xs,Ys,a,b)
+
+Ls = np.linspace(Zs.min(), Zs.max(), 7)
+"""
+Xg, Yg = np.meshgrid(np.linspace(0,7), np.linspace(-5,5))
+Zg = g(Xg,Yg, 2,2/7)
+levelsG = np.linspace(Zg.min(), Zg.max(), 15)
+figg, axg = plt.subplots()
+axg.contourf(Xg, Yg, Zg, levels=levelsG)
+axg.plot(xs, ys)
+plt.plot()
+plt.show()
+
+#H
+
+xs = [x[0] for x in pointsh]
+ys = [y[1] for y in pointsh]
+X, Y= np.meshgrid(np.linspace(-1,1), np.linspace(-2.5,0))
+Z = h(X,Y)
+levels = np.linspace(Z.min(), Z.max(), 7)
+
+fig, ax = plt.subplots()
+
+ax.contourf(X, Y, Z, levels=levels)
+ax.plot(xs, ys)
+plt.plot()
+plt.show()
+
+
+#C.14#-------------------
+
+def gradG(eps, MaxIter, u, x0, y0, df1, df2):
+    a = 1
+    b = 20
+    index = 0
+    (xnp1, ynp1) = (x0, y0)
+    while(eps < np.linalg.norm((df1(xnp1, ynp1, a, b), df2(xnp1, ynp1, a, b))) and index < MaxIter):
+        (xnp1, ynp1) = (xnp1, ynp1) + u * np.array((df1(xnp1, ynp1, a, b), df2(xnp1, ynp1, a, b)))
+    return (xnp1, ynp1)
 
 
 
-
-
-
-
+a = 1
+b = 20
+eps = 10**(-5)
+maxiter = 120
+u = np.linspace(-0.99, -0.001, 50)
+np.linalg.norm((0,0))
+valeur_reel = (0, 0)
+pointsg = [np.linalg.norm(gradG(10**-5, 120, i, 1, 1, dpgx, dpgy)) for i in u]
+print(pointsg)
+plt.plot(u,pointsg)
+plt.show()
