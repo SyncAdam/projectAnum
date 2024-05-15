@@ -192,6 +192,7 @@ def gradG(eps, MaxIter, u, x0, y0, df1, df2):
     index = 0
     (xnp1, ynp1) = (x0, y0)
     while(eps < np.linalg.norm((df1(xnp1, ynp1, a, b), df2(xnp1, ynp1, a, b))) and index < MaxIter):
+        index+=1
         (xnp1, ynp1) = (xnp1, ynp1) + u * np.array((df1(xnp1, ynp1, a, b), df2(xnp1, ynp1, a, b)))
     return (xnp1, ynp1)
 
@@ -208,3 +209,171 @@ pointsg = [np.linalg.norm(gradG(10**-5, 120, i, 1, 1, dpgx, dpgy)) for i in u]
 print(pointsg)
 plt.plot(u,pointsg)
 plt.show()
+
+
+#C.15-------------
+
+def neug(c, a, b):
+    return (pow(c[0], 2) / a) + pow(c[1], 2) / b
+
+def neuh(c):
+    return h(c[0],c[1])
+
+def gradamax(eps, MaxIter, u, x0, y0, f, df1, df2):
+    a = 2
+    b = 2/7
+    k = 0
+    (xnp1, ynp1) = (x0, y0)
+    F1 = f((xnp1, ynp1) + k * np.abs(u) * np.array((df1(xnp1, ynp1, a, b), df2(xnp1, ynp1, a, b))), a, b)
+    F2 = f((xnp1, ynp1) + (k + 1) * np.abs(u) * np.array((df1(xnp1, ynp1, a, b), df2(xnp1, ynp1, a, b))), a, b)
+    while(F1 < F2 and k < MaxIter and eps < np.linalg.norm((df1(xnp1, ynp1, a, b), df2(xnp1, ynp1, a, b)))):
+        k += 1   
+        (xnp1, ynp1) = ((xnp1, ynp1) + (k + 1) * np.abs(u) * np.array((df1(xnp1, ynp1, a, b), df2(xnp1, ynp1, a, b))))
+        F1 = f((xnp1, ynp1) + k * np.abs(u) * np.array((df1(xnp1, ynp1, a, b), df2(xnp1, ynp1, a, b))), a, b)
+        F2 = f((xnp1, ynp1) + (k + 1) * np.abs(u) * np.array((df1(xnp1, ynp1, a, b), df2(xnp1, ynp1, a, b))), a, b)
+    return (xnp1, ynp1)
+
+def gradamax2(eps, MaxIter, u, x0, y0, f, df1, df2):
+    k = 0
+    (xnp1, ynp1) = (x0, y0)
+    F1 = f((xnp1, ynp1) + k * np.abs(u) * np.array((df1(xnp1, ynp1), df2(xnp1, ynp1))))
+    F2 = f((xnp1, ynp1) + (k + 1) * np.abs(u) * np.array((df1(xnp1, ynp1), df2(xnp1, ynp1))))
+    while(F1 < F2 and k < MaxIter and eps < np.linalg.norm((df1(xnp1, ynp1), df2(xnp1, ynp1)))):
+        k += 1   
+        (xnp1, ynp1) = ((xnp1, ynp1) + (k + 1) * np.abs(u) * np.array((df1(xnp1, ynp1), df2(xnp1, ynp1))))
+        F1 = f((xnp1, ynp1) + k * np.abs(u) * np.array((df1(xnp1, ynp1), df2(xnp1, ynp1))))
+        F2 = f((xnp1, ynp1) + (k + 1) * np.abs(u) * np.array((df1(xnp1, ynp1), df2(xnp1, ynp1))))
+    return (xnp1, ynp1)
+
+point = gradamax2(10**-5, 120, -0.01, 1.5, 1.5, neuh, dphx, dphy)
+print(point)
+
+
+
+def gradamin(eps, MaxIter, u, x0, y0, f, df1, df2):
+    k = 0
+    (xnp1, ynp1) = (x0, y0)
+    F1 = f((xnp1, ynp1) + k * u * np.array((df1(xnp1, ynp1), df2(xnp1, ynp1))))
+    F2 = f((xnp1, ynp1) + (k + 1) * u * np.array((df1(xnp1, ynp1), df2(xnp1, ynp1))))
+    while(F1 > F2 and k < MaxIter and eps < np.linalg.norm((df1(xnp1, ynp1), df2(xnp1, ynp1)))):
+        k += 1   
+        (xnp1, ynp1) = ((xnp1, ynp1) + (k + 1) * u * np.array((df1(xnp1, ynp1), df2(xnp1, ynp1))))
+        F1 = f((xnp1, ynp1) + k * u * np.array((df1(xnp1, ynp1), df2(xnp1, ynp1))))
+        F2 = f((xnp1, ynp1) + (k + 1) * u * np.array((df1(xnp1, ynp1), df2(xnp1, ynp1))))
+    return [k, xnp1, ynp1]
+
+print(gradamin(10**-5, 120, -0.01, 1.5, 1.5, neuh, dphx, dphy))
+
+
+#C16----------
+def gradG(eps, MaxIter, u, x0, y0, df1, df2):
+    a = 1
+    b = 20
+    index = 0
+    points = []
+    (xnp1, ynp1) = np.array((x0, y0))
+    while(eps < np.linalg.norm((df1(xnp1, ynp1, a, b), df2(xnp1, ynp1, a, b))) and index < MaxIter):
+        index += 1
+        (xnp1, ynp1) = (xnp1, ynp1) + u * np.array((df1(xnp1, ynp1, a, b), df2(xnp1, ynp1, a, b)))
+    return [index,xnp1, ynp1]
+
+def neug(c):
+    a=1
+    b=20
+    return (pow(c[0], 2) / a) + pow(c[1], 2) / b
+
+def neudpgx(x,y):
+    a=1
+    b=20
+    return dpgx(x,y,a,b)
+def neudpgy(x,y):
+    a=1
+    b=20
+    return dpgy(x,y,a,b)
+
+def gradamin(eps, MaxIter, u, x0, y0, f, df1, df2):
+    k = 0
+    (xnp1, ynp1) = (x0, y0)
+    F1 = f((xnp1, ynp1) + k * u * np.array((df1(xnp1, ynp1), df2(xnp1, ynp1))))
+    F2 = f((xnp1, ynp1) + (k + 1) * u * np.array((df1(xnp1, ynp1), df2(xnp1, ynp1))))
+    while(F1 > F2 and k < MaxIter and eps < np.linalg.norm((df1(xnp1, ynp1), df2(xnp1, ynp1)))):
+        k += 1   
+        (xnp1, ynp1) = ((xnp1, ynp1) + (k + 1) * u * np.array((df1(xnp1, ynp1), df2(xnp1, ynp1))))
+        F1 = f((xnp1, ynp1) + k * u * np.array((df1(xnp1, ynp1), df2(xnp1, ynp1))))
+        F2 = f((xnp1, ynp1) + (k + 1) * u * np.array((df1(xnp1, ynp1), df2(xnp1, ynp1))))
+    return [k, xnp1, ynp1]
+
+print(gradamin(10**-5, 120, -0.01, 1, 1, neug, neudpgx, neudpgy))
+
+u = np.linspace(-0.999, -0.001, 100)
+
+
+xmethode1 = [gradG(10**-5, 120, m, 7, 1.5, dpgx, dpgy)[0] for m in u]
+xmethode2 = [gradamin(10**-5, 120, m, 7, 1.5, neug, neudpgx, neudpgy)[0] for m in u]
+
+plt.plot(u, xmethode1, label = 'gradG',color ='red')
+plt.plot(u, xmethode2, label = 'gradamin')
+plt.show()
+
+
+#D19----------
+
+def gpo(y, A, b, eps):
+    index = 0
+    y_k = y
+    print(y)
+    print(A)
+    print(b)
+    G_yk = 2 * (A * y_k - b)
+    rho_k = (np.linalg.norm(G_yk)**2) / (2 * np.transpose(G_yk) * A * G_yk)  if G_yk.all() != 0 else 0
+    y_kp1 = y_k - rho_k * G_yk
+    while(index < 120 and eps > np.linalg.norm(y_kp1 - y_k)):
+        index += 1
+        y_k = y_kp1 
+        rho_k = (np.linalg.norm(G_yk)**2) / (2 * np.transpose(G_yk) * A * G_yk)  if G_yk.all() != 0 else 0
+        G_yk = 2 * (A * y_k - b)
+        y_kp1 = y_kp1 -  rho_k * G_yk
+
+    return y_kp1
+
+a = 1
+b = 20
+alpha = 1/a
+gamma = 1/b
+        
+A_2d = np.matrix(f'{alpha} 0; 0 {gamma}')
+
+y = np.matrix('1; 1')
+bm = np.matrix('0 0')
+
+print(gpo(y, A_2d, bm, 0.02))
+
+
+
+def gpo(y, A, b, eps):
+    index = 0
+    y_k = y
+    G_yk = 2 * (A * y_k - b)
+    rho_k = (np.linalg.norm(G_yk)**2) / (2 * np.transpose(G_yk) * A * G_yk)  if G_yk.all() != 0 else 0
+    print(rho_k)
+    y_kp1 = y_k - rho_k * G_yk
+    while(index < 120 and eps > np.linalg.norm(y_kp1 - y_k)):
+        index += 1
+        y_k = y_kp1 
+        rho_k = (np.linalg.norm(G_yk)**2) / (2 * np.transpose(G_yk) * A * G_yk)  if G_yk.all() != 0 else 0
+        G_yk = 2 * (A * y_k - b)
+        y_kp1 = y_kp1 -  rho_k * G_yk
+
+    return y_kp1
+
+a = 1
+b = 20
+alpha = 1/a
+gamma = 1/b
+        
+A_2d = np.matrix(f'{alpha} 0; 0 {gamma}')
+
+y = np.matrix('1; 1')
+bm = np.matrix('0 0')
+
+print(gpo(y, A_2d, bm, 0.02))
