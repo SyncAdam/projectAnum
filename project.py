@@ -377,3 +377,4 @@ y = np.matrix('1; 1')
 bm = np.matrix('0 0')
 
 print(gpo(y, A_2d, bm, 0.02))
+print(np.matrix(f'{alpha} 0; 0 {gamma}'))
